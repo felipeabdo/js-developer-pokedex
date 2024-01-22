@@ -49,11 +49,11 @@ api/v2/pokemon é o endpoint
 
 // Essa função transforma a primeira letra de qualquer palavra em maiúscula
 
-function capitalizeFirstLetter(word) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
+function capitalizeFirstLetter(word) { // Função para transformar a primeira letra de uma palavra em maiúscula.
+  return word.charAt(0).toUpperCase() + word.slice(1); // charAt(0): escolhe a a letra da posição colocada no argumento. Pense na palavra como um array de letras. toUpperCase(): transforma toda a palavra em maiúscula. + word.slice(1): o + concatena a letra transformada em maiúscula anteriormente com o resto da palavra obtido com o metodo slice(1) que retira a letra da posição escolhida na palavra.
 }
 
-function loadPokemonItens(offset, limit) {
+function loadPokemonItens(offset, limit) { 
   pokeApi.getPokemons(offset, limit).then((pokemons = []) => {
     const newHTML = pokemons.map((pokemon) => `
     <li class="pokemon ${pokemon.type}">
