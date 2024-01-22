@@ -26,15 +26,16 @@ pokeApi.getPokemonDetail = (pokemon) => { // Aqui pegamos os detalhes específic
 
 function convertPokeApiDetailToPokemon(pokeDetail) { // Aqui pegamos os detalhes dos pokemons obtidos no método acima para converter em um Pokemon.
   const pokemon = new Pokemon(); // Aqui criamos uma instancia de um novo Pokemons e guardamos em uma variável. (Ver pokemon-model.js)
-  pokemon.number = pokeDetail.order;
-  pokemon.name = pokeDetail.name;
+  pokemon.number = pokeDetail.order; // Aqui pegamos o número do pokemon.
+  pokemon.name = pokeDetail.name; // Aqui pegamos a ordem do pokemon,
 
-  const types = pokeDetail.types.map((typeSlot) => typeSlot.type.name);
-  const [type] = types
+  const types = pokeDetail.types.map((typeSlot) => typeSlot.type.name); // Aqui busca os tipos que são o pokemon
+  // const [type] = types // Issi se chama destructuring.
+  const type = types[0] // da na mesma que o codigo comentado acima. Estamos pegando o tipo principal do pokemon.
 
-  pokemon.types = types
-  pokemon.type = type
+  pokemon.types = types // Aqui adicionamos todos os tipos que o pokemon é na variável da instância.
+  pokemon.type = type // Aqui adicionamos o tipo principal que o pokemon é na variável da instância.
 
-  pokemon.photo = pokeDetail.sprites.other.dream_world.front_default;
-  return pokemon
+  pokemon.photo = pokeDetail.sprites.other.dream_world.front_default; //Aqui adicionamos a imagem do pokemon na variável da instância.
+  return pokemon // Aqui retornamos um pokemon pronto.
 }
