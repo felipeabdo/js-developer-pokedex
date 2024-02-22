@@ -1,0 +1,137 @@
+.card {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  max-height: 800px;
+  margin-bottom: 90px; /* apagar depois */
+  display: none;
+}
+
+.whole-card {
+  overflow: hidden;
+  background-color: #56d0b0;
+  border-radius: 40px;
+  width: 400px;
+  position: relative;
+}
+
+.upper-part {
+  padding: 30px;
+  height: 40%;
+  position: relative;
+  overflow: hidden;
+}
+
+.pokeball-card-img {
+  position: absolute;
+  opacity: 40%;
+  width: 200px;
+  top: 153px;
+  right: -21px;
+}
+
+.pokemonster {
+  position: absolute;
+  width: 200px;
+  top: 165px;
+  right: 100px;
+  z-index: 999;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.basic-info {
+  display: flex;
+  color: white;
+  font-weight: 900;
+  width: 100%;
+  padding-top: 0;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.name-card {
+  font-size: 30px;
+  margin-bottom: 0;
+}
+
+.number-card {
+  margin-bottom: -1rem;
+}
+
+.left-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.types-card {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.types-card p {
+  background-color: rgba(240, 248, 255, 0.32);
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem 0.25rem 1rem;
+  font-size: 0.75rem;
+}
+
+.lower-part {
+  background-color: aliceblue;
+  padding: 40px;
+  border-radius: 40px;
+}
+
+.first {
+  display: flex;
+}
+
+.about h3 {
+  margin-bottom: 20px;
+}
+
+.about-title {
+  margin-right: 90px;
+  font-weight: 500;
+  color: #0000005c;
+}
+
+.about-info {
+  font-weight: 500;
+}
+
+.gender {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: -20px;
+}
+
+.gender h3 {
+  margin-right: 71px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #0000005c;
+}
+
+.gender img {
+  width: 0.75rem;
+  margin-right: .5rem;
+}
+
+.egg {
+  display: flex;
+}
+
+.egg-title {
+  margin-right: 65px;
+  font-weight: 500;
+  color: #0000005c;
+}
+
+.icons {
+  width: 1rem;
+}

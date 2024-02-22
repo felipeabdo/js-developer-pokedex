@@ -12,9 +12,10 @@ pokeApi.getPokemonDetail = (pokemon) => {  // Aqui pegamos os detalhes específi
 
 };
 
+
 // Aqui criamos uma função getPokemons dentro do objeto vazio pokeAPI que criamos acima.
 
-pokeApi.getPokemons = (offset = 0, limit = 6) => {  // nossa função getPokemons começa com um default de offset e limit.
+pokeApi.getPokemons = (offset, limit = 12) => {  // nossa função getPokemons começa com um default de offset e limit.
 
   const url = `https://pokeapi.co/api/v2/pokemon/?offset=${offset}&limit=${limit}`; // variável com a url a ser consumida e template strings.
 
