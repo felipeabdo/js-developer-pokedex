@@ -62,7 +62,6 @@ function loadPokemonItens(offset, limit) { // Função para retornar um número 
 
     pokemonList.innerHTML += newHTML;
 
-    console.log(pokemonList)
   });
 }
 

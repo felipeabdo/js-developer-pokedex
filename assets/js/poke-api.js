@@ -29,6 +29,8 @@ pokeApi.getPokemons = (offset, limit = 12) => {  // nossa função getPokemons c
 
 };
 
+console.log(getPokemons(0, 12))
+
 function convertPokeApiDetailToPokemon(pokeDetail) {  // Aqui pegamos os detalhes dos pokemons obtidos no método acima para converter em um Pokemon.
 
   const pokemon = new Pokemon(); // Aqui criamos uma instancia de um novo Pokemons e guardamos em uma variável. (Ver pokemon-model.js)
