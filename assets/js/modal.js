@@ -31,9 +31,8 @@ pokemonList.addEventListener('click', (event) => {
           <button>Fechar</button>
         </div>
         <div class="lower">
-          </div>
-        </div>
 
+        </div>
     `;
 
     let colorClass = event.target.closest('.modal-button li');
@@ -45,6 +44,7 @@ pokemonList.addEventListener('click', (event) => {
     // Adicionar um ouvinte de evento de clique ao botão de fechar do modal
     modal.querySelector('button').addEventListener('click', () => {
       modal.classList.remove(color)
+      modal.classList.remove("poke-card");
       modal.close(); // Fecha o modal quando o botão de fechar é clicado
     });
 
