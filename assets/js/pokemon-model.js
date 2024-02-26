@@ -15,8 +15,7 @@ class Pokemon {
   type;
   types = [];
   photo;
-
-
+  
   species;
   height;
   weight;
