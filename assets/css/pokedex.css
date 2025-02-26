@@ -29,6 +29,14 @@
   z-index: 9999;
   overflow: hidden;
   position: relative;
+  opacity: 0;
+  transform: translateY(20px); /* Desloca os cards para baixo */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.pokemon.visible {
+  opacity: 1;
+  transform: translateY(0); /* Retorna os cards à posição original */
 }
 
 .pokemon-ball {
