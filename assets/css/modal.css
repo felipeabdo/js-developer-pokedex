@@ -40,9 +40,11 @@ dialog .upper h1 {
 dialog .poke-img {
   border-style: none;
   position: absolute;
-  width: 152px;
-  top: 91px;
-  right: 60px;
+  bottom: 270px; /* Posiciona a imagem a uma certa altura do fundo */
+  left: 50%; /* Centraliza horizontalmente */
+  transform: translateX(-50%); /* Ajusta o posicionamento horizontal */
+  max-height: 150px; /* Define a altura máxima */
+  width: auto; /* Largura ajustada automaticamente */
 }
 
 dialog .lower {
@@ -113,4 +115,8 @@ dialog::backdrop {
 .card-icons {
   display: flex;
   justify-content: space-between;
+}
+
+.poke-img {
+  transition: opacity 0.3s ease;
 }
