@@ -23,11 +23,11 @@ pokemonList.addEventListener("click", (event) => {
 
         // Monta o conteúdo do modal
         modal.innerHTML = `
-          <img class="poke-img" src="${pokeImg}" alt="" style="display: none;"> <!-- Esconde a imagem inicialmente -->
+          <img class="poke-img" src="${pokeImg}" alt="" style="display: none;">
           <div class="upper">
             <div class="card-icons">
               <a href="#" class="close-card"><img src="/assets/img/icons/arrow-left.png" alt=""></a>
-              <a href="#" class="close-card"><img src="/assets/img/icons/heart.png" alt=""></a>
+              <a href="#" class="favorite-button"><img src="/assets/img/icons/heart.png" alt=""></a>
             </div>
             <h1>${pokemonName}</h1>
             <p>#${pokemonNumber}</p>
@@ -58,12 +58,54 @@ pokemonList.addEventListener("click", (event) => {
         // Fecha o modal ao clicar no botão de fechar
         modal.querySelector(".close-card").addEventListener("click", (e) => {
           e.preventDefault(); // Evita comportamentos padrão do link
-          modal.classList.remove(color);
-          modal.classList.remove("poke-card");
-          modal.close();
+          closeModal(modal, color, scrollPosition);
+        });
 
-          // Restaura a posição de rolagem da página
-          window.scrollTo(0, scrollPosition);
+        // Fecha o modal ao clicar fora dele
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) { // Verifica se o clique foi fora do conteúdo do modal
+            closeModal(modal, color, scrollPosition);
+          }
+        });
+
+        // Alterna o ícone de coração e atualiza a lista de favoritos
+        const favoriteButton = modal.querySelector(".favorite-button");
+        const favoriteIcon = favoriteButton.querySelector("img");
+
+        // Verifica se o Pokémon já está favoritado
+        let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        let isFavorite = favorites.includes(pokemonID);
+
+        // Define o ícone inicial
+        favoriteIcon.src = isFavorite
+          ? "/assets/img/icons/heart-fill.png"
+          : "/assets/img/icons/heart.png";
+
+        // Adiciona ou remove o Pokémon da lista de favoritos
+        favoriteButton.addEventListener("click", (e) => {
+          e.preventDefault();
+
+          // Atualiza o estado de favorito
+          isFavorite = !isFavorite;
+
+          if (isFavorite) {
+            // Adiciona o Pokémon aos favoritos apenas se ele ainda não estiver na lista
+            if (!favorites.includes(pokemonID)) {
+              favorites.push(pokemonID);
+              localStorage.setItem("favorites", JSON.stringify(favorites));
+            }
+            favoriteIcon.src = "/assets/img/icons/heart-fill.png";
+          } else {
+            // Remove o Pokémon dos favoritos
+            favorites = favorites.filter(id => id !== pokemonID);
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+            favoriteIcon.src = "/assets/img/icons/heart.png";
+          }
+
+          // Atualiza a lista de favoritos em tempo real, independentemente de adicionar ou remover
+          if (isShowingFavorites) {
+            loadFavorites();
+          }
         });
 
         // Redimensiona a imagem do Pokémon, se necessário
@@ -76,59 +118,58 @@ pokemonList.addEventListener("click", (event) => {
 
           // Verifica se a proporção é até 105:100 (1.05:1)
           if (aspectRatio <= 1.05) {
-            // Se a proporção for até 105:100, define o tamanho fixo
             imgElement.style.width = "120px";
             imgElement.style.height = "139px";
-          }
-          else if (aspectRatio <= 1.3) {
-            // Se a proporção for até 1.2:1, define o tamanho fixo
+          } else if (aspectRatio <= 1.3) {
             imgElement.style.width = "145px";
             imgElement.style.height = "133px";
-          }
-          // Verifica se a proporção é 170:100 (1.7:1)
-          else if (Math.abs(aspectRatio - 1.7) < 0.1) { // Tolerância de 0.1 para pequenas variações
-            // Se a proporção for 170:100, define a altura como 100px e ajusta a largura proporcionalmente
-            const newHeight = 100; // Nova altura
-            const newWidth = newHeight * aspectRatio; // Largura proporcional
-
+          } else if (Math.abs(aspectRatio - 1.7) < 0.1) {
+            const newHeight = 100;
+            const newWidth = newHeight * aspectRatio;
             imgElement.style.width = `${newWidth}px`;
             imgElement.style.height = `${newHeight}px`;
-          }
-          // Verifica se a altura é 80px ou menor
-          else if (naturalHeight <= maxHeight) {
-            // Se a altura for 80px ou menor, redimensiona para 120px de altura
-            const newHeight = 120; // Nova altura
-            const newWidth = newHeight * aspectRatio; // Largura proporcional
-
+          } else if (naturalHeight <= maxHeight) {
+            const newHeight = 120;
+            const newWidth = newHeight * aspectRatio;
             imgElement.style.width = `${newWidth}px`;
             imgElement.style.height = `${newHeight}px`;
-          }
-          // Verifica se a largura é maior que a altura
-          else if (naturalWidth > naturalHeight) {
-            // Se a largura for maior que a altura, define a altura máxima como 100px
-            const newHeight = 100; // Nova altura
-            const newWidth = newHeight * aspectRatio; // Largura proporcional
-
+          } else if (naturalWidth > naturalHeight) {
+            const newHeight = 100;
+            const newWidth = newHeight * aspectRatio;
             imgElement.style.width = `${newWidth}px`;
             imgElement.style.height = `${newHeight}px`;
-          }
-          // Verifica se a altura é maior que 110px
-          else if (naturalHeight > 110) {
-            // Se a altura for maior que 110px, redimensiona proporcionalmente
-            const newHeight = 130; // Nova altura
-            const newWidth = newHeight * aspectRatio; // Largura proporcional
-
+          } else if (naturalHeight > 110) {
+            const newHeight = 130;
+            const newWidth = newHeight * aspectRatio;
             imgElement.style.width = `${newWidth}px`;
             imgElement.style.height = `${newHeight}px`;
           }
 
-          // Verifica se o pokemonNumber é 004 (Charmander)
+          // Ajustes específicos para Pokémon
           if (pokemonNumber === "004") {
-            imgElement.style.left = "54%"; // Ajusta o posicionamento horizontal
+            imgElement.style.left = "54%"; // Charmander
           } else if (pokemonNumber === "007") {
-            imgElement.style.width = "140px";
+            imgElement.style.width = "180px";
+            imgElement.style.height = "190px";
+            imgElement.style.left = "48%"; // Squirtle
+          } else if (pokemonNumber === "042") {
+            imgElement.style.width = "168px";
             imgElement.style.height = "149px";
-            imgElement.style.left = "48%"; // Ajusta o posicionamento horizontal
+            imgElement.style.left = "55%"; // Golbat
+            imgElement.style.bottom = "281px";
+          } else if (pokemonNumber === "041") {
+            imgElement.style.width = "183px";
+            imgElement.style.height = "171px"; // Zubat
+          } else if (pokemonNumber === "053") {
+            imgElement.style.width = "185px";
+            imgElement.style.height = "125px"; // Persian
+          } else if (pokemonNumber === "060") {
+            imgElement.style.width = "193px";
+            imgElement.style.height = "129px"; // Poliwag
+            imgElement.style.left = "39%";
+            imgElement.style.bottom = "266px";
+          } else if (pokemonNumber === "081") {
+            imgElement.style.height = "132px"; // Magnemite
           }
 
           // Exibe a imagem com transição suave
@@ -142,3 +183,13 @@ pokemonList.addEventListener("click", (event) => {
     });
   }
 });
+
+// Função para fechar o modal
+function closeModal(modal, color, scrollPosition) {
+  modal.classList.remove(color);
+  modal.classList.remove("poke-card");
+  modal.close();
+
+  // Restaura a posição de rolagem da página
+  window.scrollTo(0, scrollPosition);
+}

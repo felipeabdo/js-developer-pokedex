@@ -45,6 +45,7 @@ dialog .poke-img {
   transform: translateX(-50%); /* Ajusta o posicionamento horizontal */
   max-height: 150px; /* Define a altura máxima */
   width: auto; /* Largura ajustada automaticamente */
+  filter: drop-shadow(2px 3px 1px rgba(0, 0, 0, 0.336));
 }
 
 dialog .lower {
@@ -119,4 +120,19 @@ dialog::backdrop {
 
 .poke-img {
   transition: opacity 0.3s ease;
+}
+
+/* Estilo do ícone de coração */
+.card-icons img {
+  width: 24px; /* Tamanho fixo */
+  height: 24px; /* Tamanho fixo */
+  margin: 0 5px; /* Espaçamento entre os ícones */
+}
+
+/* Posicionamento dos ícones no modal */
+.card-icons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
 }
