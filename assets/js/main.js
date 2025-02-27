@@ -11,8 +11,8 @@ function capitalizeFirstLetter(word) {
 }
 
 function loadPokemonItens(offset, limit) {
-  // Oculta a barra de rolagem durante o carregamento
-  pokemonList.style.overflow = "hidden";
+  // Oculta a barra de rolagem da página durante o carregamento
+  document.body.style.overflow = "hidden";
 
   pokeApi.getPokemons(offset, limit).then((pokemons = []) => {
     const newHTML = pokemons.map((pokemon, index) => `
@@ -44,7 +44,7 @@ function loadPokemonItens(offset, limit) {
 
     // Calcula o atraso entre cada card para totalizar 1 segundo
     const totalCards = newCards.length;
-    const delayBetweenCards = 1000 / totalCards; // Atraso entre cada card para totalizar 1 segundo
+    const delayBetweenCards = 500 / totalCards; // Atraso entre cada card para totalizar 1 segundo
 
     // Aplica a transição sequencialmente aos novos cards
     newCards.forEach((card, index) => {
@@ -53,7 +53,10 @@ function loadPokemonItens(offset, limit) {
 
         // Restaura a barra de rolagem após a última transição
         if (index === newCards.length - 1) {
-          pokemonList.style.overflow = "auto"; // Restaura a barra de rolagem
+          setTimeout(() => {
+            pokemonList.style.overflow = "hidden"; // Restaura a barra de rolagem da lista
+            document.body.style.overflow = "hidden"; // Restaura a barra de rolagem da página
+          }, 100); // Pequeno atraso para garantir que a transição esteja completa
         }
       }, index * delayBetweenCards); // Atraso proporcional ao número de cards
     });
@@ -121,6 +124,9 @@ function loadFavorites(offset = 0, limit = 12) {
 
 // Alterna entre a lista de todos os Pokémon e a lista de favoritos
 favoritesButton.addEventListener("click", () => {
+  // Oculta a barra de rolagem da página durante a transição
+  document.body.style.overflow = "hidden";
+
   if (isShowingFavorites) {
     // Volta para a lista de todos os Pokémon
     favoritesButton.textContent = "Favoritos ❤️";
@@ -135,6 +141,12 @@ favoritesButton.addEventListener("click", () => {
     offset = 0; // Reseta o offset para 0 ao entrar na tela de favoritos
     loadFavorites(offset, limit); // Carrega os primeiros Pokémons favoritados
   }
+
+  // Restaura a barra de rolagem após a transição
+  setTimeout(() => {
+    document.body.style.overflow = "auto"; // Restaura a barra de rolagem da página
+  }, 100); // Pequeno atraso para garantir que a transição esteja completa
+
   isShowingFavorites = !isShowingFavorites;
 });
 
@@ -143,6 +155,9 @@ loadPokemonItens(offset, limit);
 
 // Carrega mais cards ao clicar no botão "Load More"
 loadMoreButton.addEventListener("click", () => {
+  // Oculta a barra de rolagem da página durante o carregamento
+  document.body.style.overflow = "hidden";
+
   if (isShowingFavorites) {
     // Na tela de favoritos, carrega mais Pokémons favoritados
     offset += limit;

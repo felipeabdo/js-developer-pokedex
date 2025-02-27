@@ -15,6 +15,7 @@
   grid-template-columns: repeat(4, 184px);
   justify-items: center;
   width: fit-content;
+  
 }
 
 .pokemon {
