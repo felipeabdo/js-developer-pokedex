@@ -15,26 +15,30 @@ function loadPokemonItens(offset, limit) {
   document.body.style.overflow = "hidden";
 
   pokeApi.getPokemons(offset, limit).then((pokemons = []) => {
-    const newHTML = pokemons.map((pokemon, index) => `
-      <button class="modal-button" id="modal-button-${pokemon.number}">
-        <li class="pokemon ${pokemon.type}">
-          <img src="/assets/img/pokeball1.svg" class="pokemon-ball" alt="" />
-          <span class="number">#${pokemon.number.toString().padStart(3, '0')}</span>
-          <span class="name">${capitalizeFirstLetter(pokemon.name)}</span>
-          <div class="detail">
-            <ol class="types">
-              ${pokemon.types
-                .map((type) => `<li class="type ${type}">${type}</li>`)
-                .join("")}
-            </ol>
-            <img
+    const newHTML = pokemons
+      .map(
+        (pokemon) => `
+      <li class="pokemon ${pokemon.type}" id="modal-button-${pokemon.number}">
+        <img src="/assets/img/pokeball1.svg" class="pokemon-ball" alt="" />
+        <span class="number">#${pokemon.number
+          .toString()
+          .padStart(3, "0")}</span>
+        <span class="name">${capitalizeFirstLetter(pokemon.name)}</span>
+        <div class="detail">
+          <ol class="types">
+            ${pokemon.types
+              .map((type) => `<li class="type ${type}">${type}</li>`)
+              .join("")}
+          </ol>
+          <img
             src="${pokemon.photo}"
             alt="${pokemon.name}"
-            />
-          </div>
-        </li>
-      </button>
-    `).join("");
+          />
+        </div>
+      </li>
+    `
+      )
+      .join("");
 
     // Adiciona os novos cards ao DOM
     pokemonList.innerHTML += newHTML;
@@ -42,9 +46,9 @@ function loadPokemonItens(offset, limit) {
     // Seleciona todos os novos cards que ainda não têm a classe .visible
     const newCards = pokemonList.querySelectorAll(".pokemon:not(.visible)");
 
-    // Calcula o atraso entre cada card para totalizar 1 segundo
+    // Calcula o atraso entre cada card para totalizar 0,5 segundo
     const totalCards = newCards.length;
-    const delayBetweenCards = 500 / totalCards; // Atraso entre cada card para totalizar 1 segundo
+    const delayBetweenCards = 500 / totalCards; // Atraso entre cada card
 
     // Aplica a transição sequencialmente aos novos cards
     newCards.forEach((card, index) => {
@@ -55,7 +59,7 @@ function loadPokemonItens(offset, limit) {
         if (index === newCards.length - 1) {
           setTimeout(() => {
             pokemonList.style.overflow = "hidden"; // Restaura a barra de rolagem da lista
-            document.body.style.overflow = "hidden"; // Restaura a barra de rolagem da página
+            document.body.style.overflow = "auto"; // Restaura a barra de rolagem da página
           }, 100); // Pequeno atraso para garantir que a transição esteja completa
         }
       }, index * delayBetweenCards); // Atraso proporcional ao número de cards
@@ -67,7 +71,8 @@ function loadPokemonItens(offset, limit) {
 function loadFavorites(offset = 0, limit = 12) {
   const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
   if (favorites.length === 0) {
-    pokemonList.innerHTML = "<p class='centralizado'>Nenhum Pokémon favoritado.</p>";
+    pokemonList.innerHTML =
+      "<p class='centralizado'>Nenhum Pokémon favoritado.</p>";
     loadMoreButton.style.display = "none"; // Oculta o botão "Load More"
     return;
   }
@@ -81,45 +86,50 @@ function loadFavorites(offset = 0, limit = 12) {
 
   // Busca os detalhes dos Pokémon favoritados
   const pokemonsToLoad = favorites.slice(offset, offset + limit); // Carrega apenas os Pokémons dentro do limite
-  Promise.all(pokemonsToLoad.map(id => pokeApi.getPokemonDetailById(id)))
-    .then(pokemons => {
-      const newHTML = pokemons.map(pokemon => `
-        <button class="modal-button" id="modal-button-${pokemon.number}">
-          <li class="pokemon ${pokemon.type}">
-            <img src="/assets/img/pokeball1.svg" class="pokemon-ball" alt="" />
-            <span class="number">#${pokemon.number.toString().padStart(3, '0')}</span>
-            <span class="name">${capitalizeFirstLetter(pokemon.name)}</span>
-            <div class="detail">
-              <ol class="types">
-                ${pokemon.types
-                  .map((type) => `<li class="type ${type}">${type}</li>`)
-                  .join("")}
-              </ol>
-              <img
-              src="${pokemon.photo}"
-              alt="${pokemon.name}"
-              />
-            </div>
-          </li>
-        </button>
-      `).join("");
+  Promise.all(
+    pokemonsToLoad.map((id) => pokeApi.getPokemonDetailById(id))
+  ).then((pokemons) => {
+    const newHTML = pokemons
+      .map(
+        (pokemon) => `
+      <li class="pokemon ${pokemon.type}" id="modal-button-${pokemon.number}">
+        <img src="/assets/img/pokeball1.svg" class="pokemon-ball" alt="" />
+        <span class="number">#${pokemon.number
+          .toString()
+          .padStart(3, "0")}</span>
+        <span class="name">${capitalizeFirstLetter(pokemon.name)}</span>
+        <div class="detail">
+          <ol class="types">
+            ${pokemon.types
+              .map((type) => `<li class="type ${type}">${type}</li>`)
+              .join("")}
+          </ol>
+          <img
+            src="${pokemon.photo}"
+            alt="${pokemon.name}"
+          />
+        </div>
+      </li>
+    `
+      )
+      .join("");
 
-      // Se for o primeiro carregamento, substitui o conteúdo da lista
-      if (offset === 0) {
-        pokemonList.innerHTML = newHTML;
-      } else {
-        // Caso contrário, adiciona os novos Pokémons à lista existente
-        pokemonList.innerHTML += newHTML;
-      }
+    // Se for o primeiro carregamento, substitui o conteúdo da lista
+    if (offset === 0) {
+      pokemonList.innerHTML = newHTML;
+    } else {
+      // Caso contrário, adiciona os novos Pokémons à lista existente
+      pokemonList.innerHTML += newHTML;
+    }
 
-      // Aplica a transição sequencialmente aos cards favoritados
-      const favoriteCards = pokemonList.querySelectorAll(".pokemon");
-      favoriteCards.forEach((card, index) => {
-        setTimeout(() => {
-          card.classList.add("visible"); // Adiciona a classe para exibir o card
-        }, index * 100); // Atraso de 100ms entre cada card
-      });
+    // Aplica a transição sequencialmente aos cards favoritados
+    const favoriteCards = pokemonList.querySelectorAll(".pokemon");
+    favoriteCards.forEach((card, index) => {
+      setTimeout(() => {
+        card.classList.add("visible"); // Adiciona a classe para exibir o card
+      }, index * 100); // Atraso de 100ms entre cada card
     });
+  });
 }
 
 // Alterna entre a lista de todos os Pokémon e a lista de favoritos

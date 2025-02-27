@@ -1,8 +1,8 @@
 pokemonList.addEventListener("click", (event) => {
-  const button = event.target.closest(".modal-button");
+  const pokemonItem = event.target.closest(".pokemon");
 
-  if (button) {
-    const pokemonIDString = button.id.split("-")[2];
+  if (pokemonItem) {
+    const pokemonIDString = pokemonItem.id.split("-")[2];
     const pokemonID = parseInt(pokemonIDString);
 
     // Salva a posição de rolagem atual da página
@@ -12,14 +12,16 @@ pokemonList.addEventListener("click", (event) => {
     pokeApi.getPokemonDetailById(pokemonID).then((pokeData) => {
       // Busca os detalhes da espécie do Pokémon
       pokeApi.getPokemonSpecies(pokeData.species.url).then((speciesInfo) => {
-        let pokemonName = button.querySelector('.name').textContent;
+        let pokemonName = pokemonItem.querySelector(".name").textContent;
         const pokemonNumber = pokemonIDString.padStart(3, "0");
         const modal = document.querySelector("dialog");
         modal.classList.add("poke-card");
         const pokeImg = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${pokemonIDString}.svg`;
 
         // Extrair os nomes das habilidades
-        const abilitiesNames = pokeData.abilities.map(ability => ability.ability.name).join(", ");
+        const abilitiesNames = pokeData.abilities
+          .map((ability) => ability.ability.name)
+          .join(", ");
 
         // Monta o conteúdo do modal
         modal.innerHTML = `
@@ -39,7 +41,7 @@ pokemonList.addEventListener("click", (event) => {
               <p>Height: ${pokeData.height}</p>
               <p>Weight: ${pokeData.weight}</p>
               <p>Abilities: ${abilitiesNames}</p>
-              <h1>Breading</h1>
+              <h1>Breeding</h1>
               <p>Gender: ${speciesInfo.gender}</p>
               <p>Egg Group: ${speciesInfo.eggGroups}</p>
               <p>Egg Cycle: ${speciesInfo.eggCycle}</p>
@@ -48,8 +50,8 @@ pokemonList.addEventListener("click", (event) => {
         `;
 
         // Adiciona a classe de cor ao modal com base no tipo do Pokémon
-        let colorClass = event.target.closest(".modal-button li");
-        color = colorClass.classList[1];
+        let colorClass = pokemonItem.classList[1]; // Obtém a classe de tipo diretamente do item
+        let color = colorClass;
         modal.classList.add(color);
 
         // Exibe o modal
@@ -63,7 +65,7 @@ pokemonList.addEventListener("click", (event) => {
 
         // Fecha o modal ao clicar fora dele
         modal.addEventListener("click", (e) => {
-          if (e.target === modal) { // Verifica se o clique foi fora do conteúdo do modal
+          if (e.target === modal) {
             closeModal(modal, color, scrollPosition);
           }
         });
@@ -97,7 +99,7 @@ pokemonList.addEventListener("click", (event) => {
             favoriteIcon.src = "/assets/img/icons/heart-fill.png";
           } else {
             // Remove o Pokémon dos favoritos
-            favorites = favorites.filter(id => id !== pokemonID);
+            favorites = favorites.filter((id) => id !== pokemonID);
             localStorage.setItem("favorites", JSON.stringify(favorites));
             favoriteIcon.src = "/assets/img/icons/heart.png";
           }
