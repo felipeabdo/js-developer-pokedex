@@ -67,7 +67,7 @@ function loadPokemonItens(offset, limit) {
 function loadFavorites(offset = 0, limit = 12) {
   const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
   if (favorites.length === 0) {
-    pokemonList.innerHTML = "<p>Nenhum Pokémon favoritado.</p>";
+    pokemonList.innerHTML = "<p class='centralizado'>Nenhum Pokémon favoritado.</p>";
     loadMoreButton.style.display = "none"; // Oculta o botão "Load More"
     return;
   }
