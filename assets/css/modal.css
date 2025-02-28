@@ -31,7 +31,7 @@ dialog a {
 }
 
 dialog .upper h1 {
-  margin: 0;
+  margin: 34px 0 0 0;
   color: #fff;
   font-size: 1.5rem;
   text-align: left;
@@ -124,9 +124,12 @@ dialog::backdrop {
 
 /* Estilo do ícone de coração */
 .card-icons img {
-  width: 24px; /* Tamanho fixo */
-  height: 24px; /* Tamanho fixo */
-  margin: 0 5px; /* Espaçamento entre os ícones */
+  width: 16px;
+  height: 16px;
+  margin: -9px -7px;
+  z-index: 999999999999999999999;
+  position: absolute;
+  top: 35px;
 }
 
 /* Posicionamento dos ícones no modal */
