@@ -6,9 +6,24 @@ const limit = 12;
 let offset = 0;
 let isShowingFavorites = false;
 let allPokemonList = [];
+let favoritesList = [];
+const pokemonCache = {}; // Objeto para armazenar Pokémon já buscados
+let allPokemonNames = []; // Lista de todos os nomes de Pokémon
 
 function capitalizeFirstLetter(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+// Função para carregar todos os nomes de Pokémon
+function loadAllPokemonNames() {
+  const url = "https://pokeapi.co/api/v2/pokemon?limit=1000"; // Limite alto para pegar todos os Pokémon
+  return fetch(url)
+    .then((response) => response.json())
+    .then((jsonBody) => jsonBody.results.map((pokemon) => pokemon.name))
+    .catch((error) => {
+      console.error("Erro ao carregar nomes de Pokémon:", error);
+      return [];
+    });
 }
 
 // Função para carregar Pokémon da API com base no offset e limite
@@ -94,32 +109,55 @@ function loadPokemonByType(type1, type2) {
 
 // Função para buscar Pokémon por número ou nome na API
 function searchPokemonByNumberOrName(query) {
-  // Verifica se a query é um número (ID) ou um nome
   const isNumber = !isNaN(query);
+
+  // Verifica se o Pokémon já está no cache
+  if (pokemonCache[query]) {
+    displayFilteredPokemon([pokemonCache[query]]);
+    return;
+  }
 
   if (isNumber) {
     // Busca por número (ID)
     pokeApi.getPokemonDetailById(query)
       .then((pokemon) => {
         if (pokemon) {
-          displayFilteredPokemon([pokemon]); // Exibe o Pokémon encontrado
+          pokemonCache[query] = pokemon; // Armazena no cache
+          displayFilteredPokemon([pokemon]);
         } else {
-          displayFilteredPokemon([]); // Exibe "Nenhum Pokémon encontrado"
+          displayFilteredPokemon([]);
         }
       })
       .catch((error) => {
         console.error(error);
-        displayFilteredPokemon([]); // Exibe "Nenhum Pokémon encontrado" em caso de erro
+        displayFilteredPokemon([]);
       });
   } else {
     // Busca por nome (case-insensitive e parcial)
-    const filteredList = allPokemonList.filter(pokemon =>
-      pokemon.name.toLowerCase().includes(query.toLowerCase())
+    const normalizedQuery = query.toLowerCase().trim();
+
+    // Filtra os nomes de Pokémon que contêm a parte do nome digitada
+    const matchingNames = allPokemonNames.filter(name =>
+      name.toLowerCase().includes(normalizedQuery)
     );
-    if (filteredList.length > 0) {
-      displayFilteredPokemon(filteredList);
+
+    if (matchingNames.length > 0) {
+      // Busca os detalhes dos Pokémon que correspondem à busca
+      Promise.all(matchingNames.map(name => pokeApi.getPokemonByName(name)))
+        .then((pokemons) => {
+          const validPokemons = pokemons.filter(pokemon => pokemon !== null);
+          if (validPokemons.length > 0) {
+            displayFilteredPokemon(validPokemons);
+          } else {
+            displayFilteredPokemon([]);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          displayFilteredPokemon([]);
+        });
     } else {
-      displayFilteredPokemon([]); // Exibe "Nenhum Pokémon encontrado"
+      displayFilteredPokemon([]);
     }
   }
 }
@@ -154,6 +192,7 @@ function displayFilteredPokemon(filteredList) {
 
   pokemonListElement.innerHTML = newHTML;
 
+  // Aplica a animação apenas aos novos Pokémon
   const newCards = pokemonListElement.querySelectorAll('.pokemon:not(.visible)');
   newCards.forEach((card, index) => {
     setTimeout(() => {
@@ -181,10 +220,30 @@ function resetFilters(exceptFilter = null) {
   }
 }
 
-// Função para capturar o evento de "Enter" nos inputs
+// Função para validar o campo de número (aceita apenas números)
+function validateNumberInput(event) {
+  const input = event.target;
+  const value = input.value.replace(/\D/g, ''); // Remove tudo que não for número
+  input.value = value;
+}
+
+// Função para validar o campo de nome (aceita apenas letras e caracteres especiais)
+function validateNameInput(event) {
+  const input = event.target;
+  const value = input.value.replace(/[^a-zA-Zà-úÀ-Ú\s'-]/g, ''); // Remove números e caracteres inválidos
+  input.value = value;
+}
+
+// Função para capturar o evento de "Enter" nos inputs e validar entradas
 function setupInputListeners() {
   const searchByNumberInput = document.getElementById('searchByNumber');
   const searchByNameInput = document.getElementById('searchByName');
+
+  // Validação do campo de número
+  searchByNumberInput.addEventListener('input', validateNumberInput);
+
+  // Validação do campo de nome
+  searchByNameInput.addEventListener('input', validateNameInput);
 
   // Adiciona o listener para o input de número
   searchByNumberInput.addEventListener('keypress', (event) => {
@@ -230,39 +289,8 @@ function loadFavorites(offset = 0, limit = 12) {
   Promise.all(
     pokemonsToLoad.map((id) => pokeApi.getPokemonDetailById(id))
   ).then((pokemons) => {
-    const newHTML = pokemons
-      .map(
-        (pokemon) => `
-      <li class="pokemon ${pokemon.type}" id="modal-button-${pokemon.number}">
-        <img src="/assets/img/pokeball1.svg" class="pokemon-ball" alt="" />
-        <span class="number">#${pokemon.number.toString().padStart(3, '0')}</span>
-        <span class="name">${capitalizeFirstLetter(pokemon.name)}</span>
-        <div class="detail">
-          <ol class="types">
-            ${pokemon.types.map((type) => `<li class="type ${type}">${type}</li>`).join('')}
-          </ol>
-          <img src="${pokemon.photo}" alt="${pokemon.name}" />
-        </div>
-      </li>
-    `
-      )
-      .join('');
-
-    // Se for o primeiro carregamento, substitui o conteúdo da lista
-    if (offset === 0) {
-      pokemonList.innerHTML = newHTML;
-    } else {
-      // Caso contrário, adiciona os novos Pokémons à lista existente
-      pokemonList.innerHTML += newHTML;
-    }
-
-    // Aplica a transição sequencialmente aos cards favoritados
-    const favoriteCards = pokemonList.querySelectorAll(".pokemon");
-    favoriteCards.forEach((card, index) => {
-      setTimeout(() => {
-        card.classList.add("visible"); // Adiciona a classe para exibir o card
-      }, index * 100); // Atraso de 100ms entre cada card
-    });
+    favoritesList = pokemons;
+    displayFilteredPokemon(favoritesList);
   });
 }
 
@@ -286,7 +314,6 @@ favoritesButton.addEventListener("click", () => {
     loadFavorites(offset, limit); // Carrega os primeiros Pokémons favoritados
     loadMoreButton.style.display = "none"; // Oculta o botão "Load More"
   }
-
 
   // Restaura a barra de rolagem após a transição
   setTimeout(() => {
@@ -314,6 +341,7 @@ loadMoreButton.addEventListener("click", () => {
 
 // Event listeners para os filtros
 document.getElementById('generationFilter').addEventListener('change', () => {
+  clearCache(); // Limpa o cache ao mudar a geração
   resetFilters('generationFilter');
   const generationFilter = document.getElementById('generationFilter').value;
   if (generationFilter) {
@@ -328,6 +356,7 @@ document.getElementById('generationFilter').addEventListener('change', () => {
 });
 
 document.getElementById('typeFilter1').addEventListener('change', () => {
+  clearCache(); // Limpa o cache ao mudar o tipo
   // Reseta apenas os inputs de número e nome e o dropdown de geração
   document.getElementById('searchByNumber').value = '';
   document.getElementById('searchByName').value = '';
@@ -348,6 +377,7 @@ document.getElementById('typeFilter1').addEventListener('change', () => {
 });
 
 document.getElementById('typeFilter2').addEventListener('change', () => {
+  clearCache(); // Limpa o cache ao mudar o tipo
   // Reseta apenas os inputs de número e nome e o dropdown de geração
   document.getElementById('searchByNumber').value = '';
   document.getElementById('searchByName').value = '';
@@ -368,6 +398,7 @@ document.getElementById('typeFilter2').addEventListener('change', () => {
 });
 
 document.getElementById('clearFilters').addEventListener('click', () => {
+  clearCache(); // Limpa o cache ao limpar os filtros
   resetFilters();
   allPokemonList = [];
   offset = 0;
@@ -376,6 +407,7 @@ document.getElementById('clearFilters').addEventListener('click', () => {
 });
 
 document.getElementById('backToHome').addEventListener('click', () => {
+  clearCache(); // Limpa o cache ao voltar à tela inicial
   resetFilters();
   allPokemonList = [];
   offset = 0;
@@ -402,8 +434,20 @@ function checkFilters() {
   }
 }
 
+// Função para limpar o cache
+function clearCache() {
+  for (const key in pokemonCache) {
+    delete pokemonCache[key];
+  }
+}
+
 // Configura os listeners ao carregar a página
 setupInputListeners();
+
+// Carrega todos os nomes de Pokémon ao iniciar a aplicação
+loadAllPokemonNames().then((names) => {
+  allPokemonNames = names;
+});
 
 // Carrega os primeiros Pokémon ao abrir a página
 loadPokemonItens(offset, limit);
