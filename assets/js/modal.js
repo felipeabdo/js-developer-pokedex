@@ -106,6 +106,7 @@ favoriteButton.addEventListener("click", (e) => {
 
   // Atualiza a lista de favoritos em tempo real
   if (isShowingFavorites) {
+    offset = 0; // Reseta o offset para 0 ao atualizar a lista
     loadFavorites(offset, limit); // Recarrega a lista de favoritos
   }
 });

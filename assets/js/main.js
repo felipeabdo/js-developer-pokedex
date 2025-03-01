@@ -335,7 +335,7 @@ function loadFavorites(offset = 0, limit = 12, isFiltering = false) {
   }
 
   // Verifica se há mais Pokémons favoritados além do limite
-  if (favorites.length <= limit) {
+  if (favorites.length <= offset + limit) {
     loadMoreButton.style.display = "none"; // Oculta o botão "Load More" se a lista for menor ou igual ao limite
   } else {
     // Exibe o botão "Load More" apenas se não estivermos filtrando e a lista for maior que o limite
@@ -347,8 +347,19 @@ function loadFavorites(offset = 0, limit = 12, isFiltering = false) {
   Promise.all(
     pokemonsToLoad.map((id) => pokeApi.getPokemonDetailById(id))
   ).then((pokemons) => {
-    favoritesList = pokemons; // Substitui a lista de favoritos pela nova lista
+    if (offset === 0) {
+      // Se for a primeira carga, substitui a lista
+      favoritesList = pokemons;
+    } else {
+      // Se for uma carga adicional, concatena os novos Pokémon
+      favoritesList = favoritesList.concat(pokemons);
+    }
     displayFilteredPokemon(favoritesList);
+
+    // Oculta o botão "Load More" se todos os Pokémon já foram carregados
+    if (favorites.length <= offset + limit) {
+      loadMoreButton.style.display = "none";
+    }
   });
 }
 
