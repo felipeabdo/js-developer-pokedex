@@ -83,32 +83,32 @@ pokemonList.addEventListener("click", (event) => {
           ? "/assets/img/icons/heart-fill.png"
           : "/assets/img/icons/heart.png";
 
-        // Adiciona ou remove o Pokémon da lista de favoritos
-        favoriteButton.addEventListener("click", (e) => {
-          e.preventDefault();
+// Alterna o ícone de coração e atualiza a lista de favoritos
+favoriteButton.addEventListener("click", (e) => {
+  e.preventDefault();
 
-          // Atualiza o estado de favorito
-          isFavorite = !isFavorite;
+  // Atualiza o estado de favorito
+  isFavorite = !isFavorite;
 
-          if (isFavorite) {
-            // Adiciona o Pokémon aos favoritos apenas se ele ainda não estiver na lista
-            if (!favorites.includes(pokemonID)) {
-              favorites.push(pokemonID);
-              localStorage.setItem("favorites", JSON.stringify(favorites));
-            }
-            favoriteIcon.src = "/assets/img/icons/heart-fill.png";
-          } else {
-            // Remove o Pokémon dos favoritos
-            favorites = favorites.filter((id) => id !== pokemonID);
-            localStorage.setItem("favorites", JSON.stringify(favorites));
-            favoriteIcon.src = "/assets/img/icons/heart.png";
-          }
+  if (isFavorite) {
+    // Adiciona o Pokémon aos favoritos apenas se ele ainda não estiver na lista
+    if (!favorites.includes(pokemonID)) {
+      favorites.push(pokemonID);
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+    }
+    favoriteIcon.src = "/assets/img/icons/heart-fill.png";
+  } else {
+    // Remove o Pokémon dos favoritos
+    favorites = favorites.filter((id) => id !== pokemonID);
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+    favoriteIcon.src = "/assets/img/icons/heart.png";
+  }
 
-          // Atualiza a lista de favoritos em tempo real, independentemente de adicionar ou remover
-          if (isShowingFavorites) {
-            loadFavorites();
-          }
-        });
+  // Atualiza a lista de favoritos em tempo real
+  if (isShowingFavorites) {
+    loadFavorites(offset, limit); // Recarrega a lista de favoritos
+  }
+});
 
         // Redimensiona a imagem do Pokémon, se necessário
         const imgElement = modal.querySelector(".poke-img");
