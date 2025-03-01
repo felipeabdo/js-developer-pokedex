@@ -26,7 +26,67 @@
         <h1>Pokédex</h1>
         <h3>Favoritos ❤️</h3>
       </div>
-      
+
+      <!-- Filtros -->
+      <div class="filters">
+        <input type="text" id="searchByNumber" placeholder="Buscar por número (ex: 055)" />
+        <input type="text" id="searchByName" placeholder="Buscar por nome (ex: Pikachu)" />
+        <select id="generationFilter">
+          <option value="">Selecione uma geração</option>
+          <option value="1">Geração 1</option>
+          <option value="2">Geração 2</option>
+          <option value="3">Geração 3</option>
+          <option value="4">Geração 4</option>
+          <option value="5">Geração 5</option>
+          <option value="6">Geração 6</option>
+          <option value="7">Geração 7</option>
+          <option value="8">Geração 8</option>
+        </select>
+        <select id="typeFilter1">
+          <option value="">Selecione um tipo</option>
+          <option value="normal">Normal</option>
+          <option value="grass">Grass</option>
+          <option value="fire">Fire</option>
+          <option value="water">Water</option>
+          <option value="electric">Electric</option>
+          <option value="ice">Ice</option>
+          <option value="ground">Ground</option>
+          <option value="flying">Flying</option>
+          <option value="poison">Poison</option>
+          <option value="fighting">Fighting</option>
+          <option value="psychic">Psychic</option>
+          <option value="dark">Dark</option>
+          <option value="rock">Rock</option>
+          <option value="bug">Bug</option>
+          <option value="ghost">Ghost</option>
+          <option value="steel">Steel</option>
+          <option value="dragon">Dragon</option>
+          <option value="fairy">Fairy</option>
+        </select>
+        <select id="typeFilter2">
+          <option value="">Selecione um tipo</option>
+          <option value="normal">Normal</option>
+          <option value="grass">Grass</option>
+          <option value="fire">Fire</option>
+          <option value="water">Water</option>
+          <option value="electric">Electric</option>
+          <option value="ice">Ice</option>
+          <option value="ground">Ground</option>
+          <option value="flying">Flying</option>
+          <option value="poison">Poison</option>
+          <option value="fighting">Fighting</option>
+          <option value="psychic">Psychic</option>
+          <option value="dark">Dark</option>
+          <option value="rock">Rock</option>
+          <option value="bug">Bug</option>
+          <option value="ghost">Ghost</option>
+          <option value="steel">Steel</option>
+          <option value="dragon">Dragon</option>
+          <option value="fairy">Fairy</option>
+        </select>
+        <button id="clearFilters">Limpar Filtros</button>
+        <button id="backToHome" style="display: none;">Voltar à Tela Inicial</button>
+      </div>
 
       <ol class="pokemons" id="pokemonList"></ol>
 
@@ -36,9 +96,6 @@
       <dialog>
         <button>Fechar</button>
       </dialog>
-
     </section>
-
   </body>
-
 </html>
