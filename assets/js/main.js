@@ -52,58 +52,77 @@ function loadPokemonByGeneration(generation) {
   const range = generationRanges[generation];
   if (!range) return;
 
-  // Limpa a lista atual e carrega os Pokémon da geração selecionada
-  allPokemonList = [];
-  offset = 0;
-  loadPokemonItens(range.start - 1, range.end - range.start + 1);
+  if (isShowingFavorites) {
+    // Filtra apenas os favoritos
+    const filteredList = favoritesList.filter(pokemon =>
+      pokemon.number >= range.start && pokemon.number <= range.end
+    );
+    displayFilteredPokemon(filteredList);
+  } else {
+    // Filtra na lista completa de Pokémon
+    allPokemonList = [];
+    offset = 0;
+    loadPokemonItens(range.start - 1, range.end - range.start + 1);
+  }
 }
 
 // Função para buscar Pokémon por tipo (concatenando os tipos)
 function loadPokemonByType(type1, type2) {
-  // Limpa a lista atual e faz uma requisição à API para buscar Pokémon dos tipos selecionados
-  allPokemonList = [];
-  offset = 0;
-
-  if (type1 && type2) {
-    // Se dois tipos forem selecionados, busca Pokémon que possuem ambos os tipos
-    Promise.all([pokeApi.getPokemonsByType(type1), pokeApi.getPokemonsByType(type2)])
-      .then(([pokemonsType1, pokemonsType2]) => {
-        // Filtra os Pokémon que estão presentes nas duas listas
-        const filteredPokemons = pokemonsType1.filter(pokemon1 =>
-          pokemonsType2.some(pokemon2 => pokemon2.number === pokemon1.number)
-        );
-        allPokemonList = filteredPokemons;
-        displayFilteredPokemon(allPokemonList);
-      })
-      .catch((error) => {
-        console.error(error);
-        displayFilteredPokemon([]); // Exibe "Nenhum Pokémon encontrado" em caso de erro
-      });
-  } else if (type1) {
-    // Se apenas o primeiro tipo for selecionado
-    pokeApi.getPokemonsByType(type1)
-      .then((pokemons = []) => {
-        allPokemonList = pokemons;
-        displayFilteredPokemon(allPokemonList);
-      })
-      .catch((error) => {
-        console.error(error);
-        displayFilteredPokemon([]); // Exibe "Nenhum Pokémon encontrado" em caso de erro
-      });
-  } else if (type2) {
-    // Se apenas o segundo tipo for selecionado
-    pokeApi.getPokemonsByType(type2)
-      .then((pokemons = []) => {
-        allPokemonList = pokemons;
-        displayFilteredPokemon(allPokemonList);
-      })
-      .catch((error) => {
-        console.error(error);
-        displayFilteredPokemon([]); // Exibe "Nenhum Pokémon encontrado" em caso de erro
-      });
+  if (isShowingFavorites) {
+    // Filtra apenas os favoritos
+    const filteredList = favoritesList.filter(pokemon => {
+      const types = pokemon.types.map(type => type.toLowerCase());
+      return (
+        (!type1 || types.includes(type1.toLowerCase())) &&
+        (!type2 || types.includes(type2.toLowerCase()))
+      );
+    });
+    displayFilteredPokemon(filteredList);
   } else {
-    // Se nenhum tipo for selecionado, volta a carregar os 12 primeiros Pokémon
-    loadPokemonItens(offset, limit);
+    // Filtra na lista completa de Pokémon
+    allPokemonList = [];
+    offset = 0;
+
+    if (type1 && type2) {
+      // Se dois tipos forem selecionados, busca Pokémon que possuem ambos os tipos
+      Promise.all([pokeApi.getPokemonsByType(type1), pokeApi.getPokemonsByType(type2)])
+        .then(([pokemonsType1, pokemonsType2]) => {
+          const filteredPokemons = pokemonsType1.filter(pokemon1 =>
+            pokemonsType2.some(pokemon2 => pokemon2.number === pokemon1.number)
+          );
+          allPokemonList = filteredPokemons;
+          displayFilteredPokemon(allPokemonList);
+        })
+        .catch((error) => {
+          console.error(error);
+          displayFilteredPokemon([]);
+        });
+    } else if (type1) {
+      // Se apenas o primeiro tipo for selecionado
+      pokeApi.getPokemonsByType(type1)
+        .then((pokemons = []) => {
+          allPokemonList = pokemons;
+          displayFilteredPokemon(allPokemonList);
+        })
+        .catch((error) => {
+          console.error(error);
+          displayFilteredPokemon([]);
+        });
+    } else if (type2) {
+      // Se apenas o segundo tipo for selecionado
+      pokeApi.getPokemonsByType(type2)
+        .then((pokemons = []) => {
+          allPokemonList = pokemons;
+          displayFilteredPokemon(allPokemonList);
+        })
+        .catch((error) => {
+          console.error(error);
+          displayFilteredPokemon([]);
+        });
+    } else {
+      // Se nenhum tipo for selecionado, volta a carregar os 12 primeiros Pokémon
+      loadPokemonItens(offset, limit);
+    }
   }
 }
 
@@ -111,43 +130,21 @@ function loadPokemonByType(type1, type2) {
 function searchPokemonByNumberOrName(query) {
   const isNumber = !isNaN(query);
 
-  // Verifica se o Pokémon já está no cache
-  if (pokemonCache[query]) {
-    displayFilteredPokemon([pokemonCache[query]]);
-    return;
-  }
-
   if (isNumber) {
     // Busca por número (ID)
-    pokeApi.getPokemonDetailById(query)
-      .then((pokemon) => {
-        if (pokemon) {
-          pokemonCache[query] = pokemon; // Armazena no cache
-          displayFilteredPokemon([pokemon]);
-        } else {
-          displayFilteredPokemon([]);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        displayFilteredPokemon([]);
-      });
-  } else {
-    // Busca por nome (case-insensitive e parcial)
-    const normalizedQuery = query.toLowerCase().trim();
-
-    // Filtra os nomes de Pokémon que contêm a parte do nome digitada
-    const matchingNames = allPokemonNames.filter(name =>
-      name.toLowerCase().includes(normalizedQuery)
-    );
-
-    if (matchingNames.length > 0) {
-      // Busca os detalhes dos Pokémon que correspondem à busca
-      Promise.all(matchingNames.map(name => pokeApi.getPokemonByName(name)))
-        .then((pokemons) => {
-          const validPokemons = pokemons.filter(pokemon => pokemon !== null);
-          if (validPokemons.length > 0) {
-            displayFilteredPokemon(validPokemons);
+    if (isShowingFavorites) {
+      // Filtra apenas os favoritos
+      const filteredList = favoritesList.filter(pokemon =>
+        pokemon.number === parseInt(query)
+      );
+      displayFilteredPokemon(filteredList);
+    } else {
+      // Busca na lista completa
+      pokeApi.getPokemonDetailById(query)
+        .then((pokemon) => {
+          if (pokemon) {
+            pokemonCache[query] = pokemon; // Armazena no cache
+            displayFilteredPokemon([pokemon]);
           } else {
             displayFilteredPokemon([]);
           }
@@ -156,8 +153,48 @@ function searchPokemonByNumberOrName(query) {
           console.error(error);
           displayFilteredPokemon([]);
         });
+    }
+  } else {
+    // Busca por nome (case-insensitive e parcial)
+    const normalizedQuery = query.toLowerCase().trim();
+
+    if (isShowingFavorites) {
+      // Filtra apenas os favoritos
+      const filteredList = favoritesList.filter(pokemon =>
+        pokemon.name.toLowerCase().includes(normalizedQuery)
+      );
+      displayFilteredPokemon(filteredList);
     } else {
-      displayFilteredPokemon([]);
+      // Filtra na lista completa de Pokémon
+      const filteredList = allPokemonList.filter(pokemon =>
+        pokemon.name.toLowerCase().includes(normalizedQuery)
+      );
+      if (filteredList.length > 0) {
+        displayFilteredPokemon(filteredList);
+      } else {
+        // Se não encontrou na lista carregada, faz uma requisição à API
+        const matchingNames = allPokemonNames.filter(name =>
+          name.toLowerCase().includes(normalizedQuery)
+        );
+
+        if (matchingNames.length > 0) {
+          Promise.all(matchingNames.map(name => pokeApi.getPokemonByName(name)))
+            .then((pokemons) => {
+              const validPokemons = pokemons.filter(pokemon => pokemon !== null);
+              if (validPokemons.length > 0) {
+                displayFilteredPokemon(validPokemons);
+              } else {
+                displayFilteredPokemon([]);
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+              displayFilteredPokemon([]);
+            });
+        } else {
+          displayFilteredPokemon([]);
+        }
+      }
     }
   }
 }
@@ -217,6 +254,21 @@ function resetFilters(exceptFilter = null) {
   }
   if (exceptFilter !== 'typeFilter2') {
     document.getElementById('typeFilter2').value = '';
+  }
+}
+
+// Função para limpar os filtros
+function clearFilters() {
+  resetFilters();
+
+  if (isShowingFavorites) {
+    // Volta a exibir apenas os favoritos
+    loadFavorites(offset, limit);
+  } else {
+    // Volta a exibir os Pokémon carregados inicialmente
+    allPokemonList = [];
+    offset = 0;
+    loadPokemonItens(offset, limit);
   }
 }
 
@@ -398,11 +450,7 @@ document.getElementById('typeFilter2').addEventListener('change', () => {
 });
 
 document.getElementById('clearFilters').addEventListener('click', () => {
-  clearCache(); // Limpa o cache ao limpar os filtros
-  resetFilters();
-  allPokemonList = [];
-  offset = 0;
-  loadPokemonItens(offset, limit);
+  clearFilters();
   checkFilters();
 });
 
