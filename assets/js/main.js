@@ -54,11 +54,19 @@ function loadPokemonByGeneration(generation) {
 
   if (isShowingFavorites) {
     // Filtra apenas os favoritos
-    const filteredList = favoritesList.filter(pokemon =>
-      pokemon.number >= range.start && pokemon.number <= range.end
-    );
-    displayFilteredPokemon(filteredList);
-    loadMoreButton.style.display = "none"; // Oculta o botão "Load More" durante a filtragem
+    const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    Promise.all(favorites.map(id => pokeApi.getPokemonDetailById(id)))
+      .then((pokemons) => {
+        const filteredList = pokemons.filter(pokemon =>
+          pokemon.number >= range.start && pokemon.number <= range.end
+        );
+        displayFilteredPokemon(filteredList);
+        loadMoreButton.style.display = "none"; // Oculta o botão "Load More" durante a filtragem
+      })
+      .catch((error) => {
+        console.error(error);
+        displayFilteredPokemon([]);
+      });
   } else {
     // Filtra na lista completa de Pokémon
     allPokemonList = [];
@@ -71,15 +79,23 @@ function loadPokemonByGeneration(generation) {
 function loadPokemonByType(type1, type2) {
   if (isShowingFavorites) {
     // Filtra apenas os favoritos
-    const filteredList = favoritesList.filter(pokemon => {
-      const types = pokemon.types.map(type => type.toLowerCase());
-      return (
-        (!type1 || types.includes(type1.toLowerCase())) &&
-        (!type2 || types.includes(type2.toLowerCase()))
-      );
-    });
-    displayFilteredPokemon(filteredList);
-    loadMoreButton.style.display = "none"; // Oculta o botão "Load More" durante a filtragem
+    const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    Promise.all(favorites.map(id => pokeApi.getPokemonDetailById(id)))
+      .then((pokemons) => {
+        const filteredList = pokemons.filter(pokemon => {
+          const types = pokemon.types.map(type => type.toLowerCase());
+          return (
+            (!type1 || types.includes(type1.toLowerCase())) &&
+            (!type2 || types.includes(type2.toLowerCase()))
+          );
+        });
+        displayFilteredPokemon(filteredList);
+        loadMoreButton.style.display = "none"; // Oculta o botão "Load More" durante a filtragem
+      })
+      .catch((error) => {
+        console.error(error);
+        displayFilteredPokemon([]);
+      });
   } else {
     // Filtra na lista completa de Pokémon
     allPokemonList = [];
@@ -136,11 +152,26 @@ function searchPokemonByNumberOrName(query) {
     // Busca por número (ID)
     if (isShowingFavorites) {
       // Filtra apenas os favoritos
-      const filteredList = favoritesList.filter(pokemon =>
-        pokemon.number === parseInt(query)
-      );
-      displayFilteredPokemon(filteredList);
-      loadMoreButton.style.display = "none"; // Oculta o botão "Load More" durante a filtragem
+      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+      const pokemonID = parseInt(query);
+
+      if (favorites.includes(pokemonID)) {
+        // Se o Pokémon estiver favoritado, busca os detalhes
+        pokeApi.getPokemonDetailById(pokemonID)
+          .then((pokemon) => {
+            if (pokemon) {
+              displayFilteredPokemon([pokemon]);
+            } else {
+              displayFilteredPokemon([]);
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            displayFilteredPokemon([]);
+          });
+      } else {
+        displayFilteredPokemon([]); // Pokémon não encontrado nos favoritos
+      }
     } else {
       // Busca na lista completa
       pokeApi.getPokemonDetailById(query)
@@ -163,11 +194,34 @@ function searchPokemonByNumberOrName(query) {
 
     if (isShowingFavorites) {
       // Filtra apenas os favoritos
-      const filteredList = favoritesList.filter(pokemon =>
-        pokemon.name.toLowerCase().includes(normalizedQuery)
+      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+      const matchingNames = allPokemonNames.filter(name =>
+        name.toLowerCase().includes(normalizedQuery)
       );
-      displayFilteredPokemon(filteredList);
-      loadMoreButton.style.display = "none"; // Oculta o botão "Load More" durante a filtragem
+
+      // Filtra os IDs dos favoritos que correspondem aos nomes encontrados
+      const matchingFavorites = favorites.filter(id =>
+        matchingNames.includes(allPokemonNames[id - 1])
+      );
+
+      if (matchingFavorites.length > 0) {
+        // Busca os detalhes dos Pokémon favoritados que correspondem à query
+        Promise.all(matchingFavorites.map(id => pokeApi.getPokemonDetailById(id)))
+          .then((pokemons) => {
+            const validPokemons = pokemons.filter(pokemon => pokemon !== null);
+            if (validPokemons.length > 0) {
+              displayFilteredPokemon(validPokemons);
+            } else {
+              displayFilteredPokemon([]);
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            displayFilteredPokemon([]);
+          });
+      } else {
+        displayFilteredPokemon([]); // Nenhum Pokémon encontrado
+      }
     } else {
       // Filtra na lista completa de Pokémon
       const filteredList = allPokemonList.filter(pokemon =>
@@ -201,6 +255,9 @@ function searchPokemonByNumberOrName(query) {
       }
     }
   }
+
+  // Oculta o botão "Load More" após a filtragem
+  checkFilters();
 }
 
 // Função para exibir os Pokémon filtrados
@@ -335,30 +392,30 @@ function loadFavorites(offset = 0, limit = 12, isFiltering = false) {
   }
 
   // Verifica se há mais Pokémons favoritados além do limite
-  if (favorites.length <= offset + limit) {
-    loadMoreButton.style.display = "none"; // Oculta o botão "Load More" se a lista for menor ou igual ao limite
+  const totalFavorites = favorites.length;
+  const hasMoreFavorites = offset + limit < totalFavorites;
+
+  if (!hasMoreFavorites) {
+    loadMoreButton.style.display = "none"; // Oculta o botão "Load More" se todos os favoritos já foram carregados
   } else {
-    // Exibe o botão "Load More" apenas se não estivermos filtrando e a lista for maior que o limite
-    loadMoreButton.style.display = isFiltering ? "none" : "block";
+    loadMoreButton.style.display = isFiltering ? "none" : "block"; // Exibe o botão "Load More" se houver mais favoritos
   }
 
   // Busca os detalhes dos Pokémon favoritados
   const pokemonsToLoad = favorites.slice(offset, offset + limit); // Carrega apenas os Pokémons dentro do limite
   Promise.all(
     pokemonsToLoad.map((id) => pokeApi.getPokemonDetailById(id))
-  ).then((pokemons) => {
+  ).then((newPokemons) => {
     if (offset === 0) {
-      // Se for a primeira carga, substitui a lista
-      favoritesList = pokemons;
+      favoritesList = newPokemons; // Substitui a lista de favoritos pela nova lista se for a primeira carga
     } else {
-      // Se for uma carga adicional, concatena os novos Pokémon
-      favoritesList = favoritesList.concat(pokemons);
+      favoritesList = favoritesList.concat(newPokemons); // Adiciona os novos Pokémon à lista existente
     }
     displayFilteredPokemon(favoritesList);
 
-    // Oculta o botão "Load More" se todos os Pokémon já foram carregados
-    if (favorites.length <= offset + limit) {
-      loadMoreButton.style.display = "none";
+    // Verifica novamente se todos os favoritos foram carregados após a atualização
+    if (favoritesList.length >= totalFavorites) {
+      loadMoreButton.style.display = "none"; // Oculta o botão "Load More" se todos os favoritos já foram carregados
     }
   });
 }
@@ -368,10 +425,14 @@ favoritesButton.addEventListener("click", () => {
   // Oculta a barra de rolagem da página durante a transição
   document.body.style.overflow = "hidden";
 
+  // Limpa os filtros ao alternar entre as telas
+  clearFilters();
+
   if (isShowingFavorites) {
     // Volta para a lista de todos os Pokémon
     favoritesButton.textContent = "Favoritos ❤️";
     pokemonList.innerHTML = ""; // Limpa a lista antes de carregar os Pokémons
+    allPokemonList = []; // Limpa a lista de Pokémon carregados
     offset = 0; // Reseta o offset para 0 ao voltar para a tela principal
     loadPokemonItens(offset, limit);
     loadMoreButton.style.display = "block"; // Exibe o botão "Load More"
@@ -401,7 +462,14 @@ loadMoreButton.addEventListener("click", () => {
   if (isShowingFavorites) {
     // Na tela de favoritos, carrega mais Pokémons favoritados
     offset += limit;
-    loadFavorites(offset, limit);
+
+    // Verifica se ainda há favoritos para carregar
+    const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    if (offset < favorites.length) {
+      loadFavorites(offset, limit);
+    } else {
+      loadMoreButton.style.display = "none"; // Oculta o botão "Load More" se todos os favoritos já foram carregados
+    }
   } else {
     // Na tela principal, carrega mais Pokémons da lista completa
     offset += limit;
@@ -414,14 +482,28 @@ document.getElementById('generationFilter').addEventListener('change', () => {
   clearCache(); // Limpa o cache ao mudar a geração
   resetFilters('generationFilter');
   const generationFilter = document.getElementById('generationFilter').value;
-  if (generationFilter) {
-    loadPokemonByGeneration(generationFilter);
+
+  if (isShowingFavorites) {
+    if (generationFilter) {
+      // Filtra os favoritos pela geração selecionada
+      loadPokemonByGeneration(generationFilter);
+    } else {
+      // Se nenhuma geração for selecionada, recarrega a lista completa de favoritos
+      offset = 0; // Reseta o offset
+      loadFavorites(offset, limit);
+    }
   } else {
-    // Se nenhuma geração for selecionada, volta a carregar os 12 primeiros Pokémon
-    allPokemonList = [];
-    offset = 0;
-    loadPokemonItens(offset, limit);
+    if (generationFilter) {
+      // Filtra a lista completa de Pokémon pela geração selecionada
+      loadPokemonByGeneration(generationFilter);
+    } else {
+      // Se nenhuma geração for selecionada, volta a carregar os 12 primeiros Pokémon
+      allPokemonList = [];
+      offset = 0;
+      loadPokemonItens(offset, limit);
+    }
   }
+
   checkFilters();
 });
 

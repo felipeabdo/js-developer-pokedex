@@ -9,6 +9,8 @@
   .content .pokemons {
     grid-template-columns: 1fr 1fr 1fr;
   }
+
+
 }
 
 @media screen and (max-width: 575px) {
@@ -22,6 +24,16 @@
     justify-content: center;
   }
 
+  .head-title {
+    gap: 40px;
+    margin-top: -21px;
+  }
+
+  .head-title img {
+    width: 160px;
+  }
+
+}
 
 
 @media screen and (max-width: 392px) {
@@ -66,4 +78,4 @@
     opacity: 0.25;
   }
 }
-}
+

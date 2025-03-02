@@ -43,9 +43,15 @@ ol button {
 
 .head-title {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 128px;
+}
+
+.head-title img {
+  width: 400px;
+  margin-top: 50px;
+  margin-bottom: 50px;
 }
 
 .centralizado {
@@ -56,7 +62,8 @@ ol button {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
+  justify-content: center;
 }
 
 .filters input,
@@ -65,6 +72,8 @@ ol button {
   border-radius: 5px;
   border: 1px solid #ccc;
   font-size: 14px;
+  height: 40px;
+  width: 100px;
 }
 
 .filters button {
@@ -79,4 +88,15 @@ ol button {
 
 .filters button:hover {
   background-color: #5a67c7;
+}
+
+.favorites-icon {
+  transition: transform 0.3s ease, filter 0.3s ease;
+  width: 24px;
+  height: 24px;
+}
+
+.favorites-icon.active {
+  filter: brightness(1.2); /* Aumenta o brilho da Pokébola */
+  transform: scale(1.1); /* Aumenta ligeiramente o tamanho */
 }
