@@ -26,13 +26,23 @@
       <nav>
         <div class="head-title">
           <img src="/assets/img/logo pokedex.png" alt="">
-          <!-- <h1>Pokédex</h1> -->
           <h3 style="cursor: pointer;">Favoritos ❤️</h3>
         </div>
         <!-- Filtros -->
         <div class="filters">
-          <input type="text" id="searchByNumber" placeholder="ID" />
-          <input type="text" id="searchByName" placeholder="Pokemon" />
+          <input
+            type="text"
+            inputmode="numeric" 
+            enterkeyhint="done"
+            id="searchByNumber"
+            placeholder="ID"
+          />
+          <input
+            type="text"
+            enterkeyhint="search"
+            id="searchByName"
+            placeholder="Pokemon"
+          />
           <select id="generationFilter">
             <option value="">Geração</option>
             <option value="1">Geração 1</option>

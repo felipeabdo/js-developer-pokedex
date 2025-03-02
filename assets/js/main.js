@@ -362,6 +362,7 @@ function setupInputListeners() {
   // Adiciona o listener para o input de número
   searchByNumberInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
+      event.preventDefault(); // Evita o comportamento padrão de "Próximo"
       const query = searchByNumberInput.value.trim();
       if (query) {
         resetFilters('searchByNumber');
@@ -373,6 +374,7 @@ function setupInputListeners() {
   // Adiciona o listener para o input de nome
   searchByNameInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
+      event.preventDefault(); // Evita o comportamento padrão de "Próximo"
       const query = searchByNameInput.value.trim();
       if (query) {
         resetFilters('searchByName');
