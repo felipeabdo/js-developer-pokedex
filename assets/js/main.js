@@ -27,12 +27,16 @@ function loadAllPokemonNames() {
 }
 
 // Função para carregar Pokémon da API com base no offset e limite
-function loadPokemonItens(offset, limit) {
+function loadPokemonItens(offset, limit, shouldReplaceList = true) {
   document.body.style.overflow = "hidden";
 
   pokeApi.getPokemons(offset, limit).then((pokemons = []) => {
-    allPokemonList = allPokemonList.concat(pokemons);
-    displayFilteredPokemon(allPokemonList);
+    if (shouldReplaceList) {
+      allPokemonList = pokemons; // Substitui a lista completa
+    } else {
+      allPokemonList = allPokemonList.concat(pokemons); // Adiciona à lista existente
+    }
+    displayFilteredPokemon(allPokemonList, shouldReplaceList);
   });
 }
 
@@ -261,19 +265,32 @@ function searchPokemonByNumberOrName(query) {
 }
 
 // Função para exibir os Pokémon filtrados
-function displayFilteredPokemon(filteredList) {
+function displayFilteredPokemon(filteredList, shouldReplaceList = true) {
   const pokemonListElement = document.getElementById('pokemonList');
-  pokemonListElement.innerHTML = '';
 
   if (filteredList.length === 0) {
     pokemonListElement.innerHTML = '<p class="centralizado">Nenhum Pokémon encontrado.</p>';
     return;
   }
 
-  const newHTML = filteredList
-    .map(
-      (pokemon) => `
-      <li class="pokemon ${pokemon.type}" id="modal-button-${pokemon.number}">
+  // Se a lista deve ser substituída, limpa o conteúdo atual
+  if (shouldReplaceList) {
+    pokemonListElement.innerHTML = '';
+  }
+
+  // Cria um fragmento de documento para armazenar os novos Pokémon
+  const fragment = document.createDocumentFragment();
+
+  // Itera sobre a lista filtrada de Pokémon
+  filteredList.forEach((pokemon, index) => {
+    // Verifica se o Pokémon já está na lista (apenas se não estiver substituindo a lista)
+    const existingPokemon = shouldReplaceList ? null : pokemonListElement.querySelector(`#modal-button-${pokemon.number}`);
+    if (!existingPokemon) {
+      // Cria o novo elemento de Pokémon
+      const newPokemon = document.createElement('li');
+      newPokemon.classList.add('pokemon', pokemon.type);
+      newPokemon.id = `modal-button-${pokemon.number}`;
+      newPokemon.innerHTML = `
         <img src="/assets/img/pokeball1.svg" class="pokemon-ball" alt="" />
         <span class="number">#${pokemon.number.toString().padStart(3, '0')}</span>
         <span class="name">${capitalizeFirstLetter(pokemon.name)}</span>
@@ -283,20 +300,20 @@ function displayFilteredPokemon(filteredList) {
           </ol>
           <img src="${pokemon.photo}" alt="${pokemon.name}" />
         </div>
-      </li>
-    `
-    )
-    .join('');
+      `;
 
-  pokemonListElement.innerHTML = newHTML;
+      // Adiciona o novo Pokémon ao fragmento
+      fragment.appendChild(newPokemon);
 
-  // Aplica a animação apenas aos novos Pokémon
-  const newCards = pokemonListElement.querySelectorAll('.pokemon:not(.visible)');
-  newCards.forEach((card, index) => {
-    setTimeout(() => {
-      card.classList.add('visible');
-    }, index * 100);
+      // Aplica a animação apenas aos novos Pokémon
+      setTimeout(() => {
+        newPokemon.classList.add('visible');
+      }, index * 100); // Atraso para animação em cascata
+    }
   });
+
+  // Adiciona os novos Pokémon à lista existente
+  pokemonListElement.appendChild(fragment);
 }
 
 // Função para resetar os filtros (exceto o que está sendo usado)
@@ -326,12 +343,12 @@ function clearFilters() {
   if (isShowingFavorites) {
     // Na tela de favoritos, carrega a lista de favoritos
     offset = 0;
-    loadFavorites(offset, limit);
+    loadFavorites(offset, limit, false, true); // Substitui a lista
   } else {
     // Na tela principal, carrega a lista completa de Pokémon
     allPokemonList = [];
     offset = 0;
-    loadPokemonItens(offset, limit);
+    loadPokemonItens(offset, limit, true); // Substitui a lista
   }
 }
 
@@ -386,7 +403,7 @@ function setupInputListeners() {
 }
 
 // Função para carregar Pokémon favoritados
-function loadFavorites(offset = 0, limit = 12, isFiltering = false) {
+function loadFavorites(offset = 0, limit = 12, isFiltering = false, shouldReplaceList = true) {
   const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
   if (favorites.length === 0) {
     pokemonList.innerHTML = "<p class='centralizado'>Nenhum Pokémon favoritado.</p>";
@@ -409,12 +426,12 @@ function loadFavorites(offset = 0, limit = 12, isFiltering = false) {
   Promise.all(
     pokemonsToLoad.map((id) => pokeApi.getPokemonDetailById(id))
   ).then((newPokemons) => {
-    if (offset === 0) {
-      favoritesList = newPokemons; // Substitui a lista de favoritos pela nova lista se for a primeira carga
+    if (shouldReplaceList) {
+      favoritesList = newPokemons; // Substitui a lista de favoritos
     } else {
-      favoritesList = favoritesList.concat(newPokemons); // Adiciona os novos Pokémon à lista existente
+      favoritesList = favoritesList.concat(newPokemons); // Adiciona à lista existente
     }
-    displayFilteredPokemon(favoritesList);
+    displayFilteredPokemon(favoritesList, shouldReplaceList);
 
     // Verifica novamente se todos os favoritos foram carregados após a atualização
     if (favoritesList.length >= totalFavorites) {
@@ -477,7 +494,7 @@ loadMoreButton.addEventListener("click", () => {
   } else {
     // Na tela principal, carrega mais Pokémons da lista completa
     offset += limit;
-    loadPokemonItens(offset, limit);
+    loadPokemonItens(offset, limit, false); // Não substitui a lista
   }
 });
 
