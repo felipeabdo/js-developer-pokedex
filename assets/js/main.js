@@ -487,7 +487,7 @@ loadMoreButton.addEventListener("click", () => {
     // Verifica se ainda há favoritos para carregar
     const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
     if (offset < favorites.length) {
-      loadFavorites(offset, limit);
+      loadFavorites(offset, limit, false, false); // Não substitui a lista
     } else {
       loadMoreButton.style.display = "none"; // Oculta o botão "Load More" se todos os favoritos já foram carregados
     }
