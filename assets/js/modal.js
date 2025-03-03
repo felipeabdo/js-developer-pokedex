@@ -16,7 +16,16 @@ pokemonList.addEventListener("click", (event) => {
         const pokemonNumber = pokemonIDString.padStart(3, "0");
         const modal = document.querySelector("dialog");
         modal.classList.add("poke-card");
-        const pokeImg = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${pokemonIDString}.svg`;
+
+        // Lógica para definir a URL da imagem
+        let pokeImg;
+        if (pokemonID <= 649) {
+          // Usa a imagem da API
+          pokeImg = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${pokemonIDString}.svg`;
+        } else {
+          // Usa a imagem da pasta local
+          pokeImg = `/assets/img/pokemons/${pokemonID}.png`;
+        }
 
         // Extrair os nomes das habilidades
         const abilitiesNames = pokeData.abilities
@@ -83,33 +92,33 @@ pokemonList.addEventListener("click", (event) => {
           ? "/assets/img/icons/heart-fill.png"
           : "/assets/img/icons/heart.png";
 
-// Alterna o ícone de coração e atualiza a lista de favoritos
-favoriteButton.addEventListener("click", (e) => {
-  e.preventDefault();
+        // Alterna o ícone de coração e atualiza a lista de favoritos
+        favoriteButton.addEventListener("click", (e) => {
+          e.preventDefault();
 
-  // Atualiza o estado de favorito
-  isFavorite = !isFavorite;
+          // Atualiza o estado de favorito
+          isFavorite = !isFavorite;
 
-  if (isFavorite) {
-    // Adiciona o Pokémon aos favoritos apenas se ele ainda não estiver na lista
-    if (!favorites.includes(pokemonID)) {
-      favorites.push(pokemonID);
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-    }
-    favoriteIcon.src = "/assets/img/icons/heart-fill.png";
-  } else {
-    // Remove o Pokémon dos favoritos
-    favorites = favorites.filter((id) => id !== pokemonID);
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-    favoriteIcon.src = "/assets/img/icons/heart.png";
-  }
+          if (isFavorite) {
+            // Adiciona o Pokémon aos favoritos apenas se ele ainda não estiver na lista
+            if (!favorites.includes(pokemonID)) {
+              favorites.push(pokemonID);
+              localStorage.setItem("favorites", JSON.stringify(favorites));
+            }
+            favoriteIcon.src = "/assets/img/icons/heart-fill.png";
+          } else {
+            // Remove o Pokémon dos favoritos
+            favorites = favorites.filter((id) => id !== pokemonID);
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+            favoriteIcon.src = "/assets/img/icons/heart.png";
+          }
 
-  // Atualiza a lista de favoritos em tempo real
-  if (isShowingFavorites) {
-    offset = 0; // Reseta o offset para 0 ao atualizar a lista
-    loadFavorites(offset, limit); // Recarrega a lista de favoritos
-  }
-});
+          // Atualiza a lista de favoritos em tempo real
+          if (isShowingFavorites) {
+            offset = 0; // Reseta o offset para 0 ao atualizar a lista
+            loadFavorites(offset, limit); // Recarrega a lista de favoritos
+          }
+        });
 
         // Redimensiona a imagem do Pokémon, se necessário
         const imgElement = modal.querySelector(".poke-img");
@@ -146,33 +155,6 @@ favoriteButton.addEventListener("click", (e) => {
             const newWidth = newHeight * aspectRatio;
             imgElement.style.width = `${newWidth}px`;
             imgElement.style.height = `${newHeight}px`;
-          }
-
-          // Ajustes específicos para Pokémon
-          if (pokemonNumber === "004") {
-            imgElement.style.left = "54%"; // Charmander
-          } else if (pokemonNumber === "007") {
-            imgElement.style.width = "180px";
-            imgElement.style.height = "190px";
-            imgElement.style.left = "48%"; // Squirtle
-          } else if (pokemonNumber === "042") {
-            imgElement.style.width = "168px";
-            imgElement.style.height = "149px";
-            imgElement.style.left = "55%"; // Golbat
-            imgElement.style.bottom = "281px";
-          } else if (pokemonNumber === "041") {
-            imgElement.style.width = "183px";
-            imgElement.style.height = "171px"; // Zubat
-          } else if (pokemonNumber === "053") {
-            imgElement.style.width = "185px";
-            imgElement.style.height = "125px"; // Persian
-          } else if (pokemonNumber === "060") {
-            imgElement.style.width = "193px";
-            imgElement.style.height = "129px"; // Poliwag
-            imgElement.style.left = "39%";
-            imgElement.style.bottom = "266px";
-          } else if (pokemonNumber === "081") {
-            imgElement.style.height = "132px"; // Magnemite
           }
 
           // Exibe a imagem com transição suave

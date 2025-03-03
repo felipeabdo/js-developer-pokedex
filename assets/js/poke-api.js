@@ -101,7 +101,14 @@ function convertPokeApiDetailToPokemon(pokeDetail) {
   pokemon.types = types;
   pokemon.type = type;
 
-  pokemon.photo = pokeDetail.sprites.other.dream_world.front_default;
+  // Lógica para definir a URL da imagem
+  if (pokemon.number <= 649) {
+    // Usa a imagem da API
+    pokemon.photo = pokeDetail.sprites.other.dream_world.front_default;
+  } else {
+    // Usa a imagem da pasta local
+    pokemon.photo = `/assets/img/pokemons/${pokemon.number}.png`;
+  }
 
   pokemon.weight = pokeDetail.weight;
   pokemon.height = pokeDetail.height;
