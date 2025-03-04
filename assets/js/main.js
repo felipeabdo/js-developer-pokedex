@@ -50,7 +50,8 @@ function loadPokemonByGeneration(generation) {
     5: { start: 494, end: 649 },
     6: { start: 650, end: 721 },
     7: { start: 722, end: 809 },
-    8: { start: 810, end: 898 }
+    8: { start: 810, end: 898 },
+    9: { start: 899, end: 1025 },
   };
 
   const range = generationRanges[generation];
