@@ -127,9 +127,22 @@ pokemonList.addEventListener("click", (event) => {
           const naturalWidth = imgElement.naturalWidth;
           const naturalHeight = imgElement.naturalHeight;
           const aspectRatio = naturalWidth / naturalHeight;
-
-          // Verifica se a proporção é até 105:100 (1.05:1)
-          if (aspectRatio <= 1.05) {
+         
+          if (pokemonID === 813) {
+            imgElement.style.width = "90px";
+            imgElement.style.height = "150px";
+          } else if (pokemonID === 896) {
+            imgElement.style.width = "90px";
+            imgElement.style.height = "150px";
+          } else if (pokemonID === 899) {
+            imgElement.style.width = "131px";
+            imgElement.style.height = "150px";
+          } else if (pokemonID === 897) {
+            imgElement.style.width = "174px";
+            imgElement.style.height = "150px";
+            imgElement.style.top = "90px";
+            imgElement.style.left = "152px";
+          } else if (aspectRatio <= 1.05) {  // Verifica se a proporção é até 105:100 (1.05:1)
             imgElement.style.width = "120px";
             imgElement.style.height = "139px";
           } else if (aspectRatio <= 1.3) {
@@ -150,7 +163,12 @@ pokemonList.addEventListener("click", (event) => {
             const newWidth = newHeight * aspectRatio;
             imgElement.style.width = `${newWidth}px`;
             imgElement.style.height = `${newHeight}px`;
+          } else if (pokemonID === 813) {
+            // Condição especial para o Pokémon de ID 813
+            imgElement.style.width = "90px";
+            imgElement.style.height = "150px";
           } else if (naturalHeight > 110) {
+            // Lógica padrão para Pokémon com altura maior que 110
             const newHeight = 130;
             const newWidth = newHeight * aspectRatio;
             imgElement.style.width = `${newWidth}px`;

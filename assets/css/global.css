@@ -37,6 +37,10 @@ ol button {
   padding: 0;
 }
 
+ol .types {
+  width: 75px;
+}
+
 #pokemonList {
   overflow: hidden;
 }
@@ -73,7 +77,7 @@ ol button {
   border: 1px solid #ccc;
   font-size: 14px;
   height: 40px;
-  width: 100px;
+  width: 105px;
 }
 
 .filters button {
