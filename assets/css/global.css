@@ -37,8 +37,9 @@ ol button {
   padding: 0;
 }
 
-ol .types {
-  width: 75px;
+/* Estilo exclusivo para os tipos dos Pokémon de ID 924 e 925 */
+.types-special {
+  width: 103px;
 }
 
 #pokemonList {

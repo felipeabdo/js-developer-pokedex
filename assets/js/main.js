@@ -303,6 +303,14 @@ function displayFilteredPokemon(filteredList, shouldReplaceList = true) {
         </div>
       `;
 
+       // Verifica se o Pokémon é de ID 924 ou 925
+       if (pokemon.number === 924 || pokemon.number === 925 || pokemon.number === 529 || pokemon.number === 551 || pokemon.number === 602 || pokemon.number === 618 || pokemon.number === 437 || pokemon.number === 486 || pokemon.number === 263 || pokemon.number === 264 || pokemon.number === 276 || pokemon.number === 277 || pokemon.number === 287 || pokemon.number === 290 || pokemon.number === 329 || pokemon.number === 333 || pokemon.number === 334 || pokemon.number === 375 || pokemon.number === 376 || pokemon.number === 380 || pokemon.number === 381 || pokemon.number === 167 || pokemon.number === 169 || pokemon.number === 170 || pokemon.number === 171 || pokemon.number === 211 || pokemon.number === 220 || pokemon.number === 232 || pokemon.number === 22 || pokemon.number === 41 || pokemon.number === 42 || pokemon.number === 49 || pokemon.number === 50 || pokemon.number === 53 || pokemon.number === 74 || pokemon.number === 75 || pokemon.number === 81 || pokemon.number === 89 || pokemon.number === 132 ) {
+        const typesList = newPokemon.querySelector('.types');
+        if (typesList) {
+          typesList.classList.add('types-special'); // Adiciona a classe exclusiva
+        }
+      }
+
       // Adiciona o novo Pokémon ao fragmento
       fragment.appendChild(newPokemon);
 

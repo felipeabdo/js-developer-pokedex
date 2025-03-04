@@ -63,6 +63,8 @@ pokemonList.addEventListener("click", (event) => {
         let color = colorClass;
         modal.classList.add(color);
 
+
+
         // Exibe o modal
         modal.showModal();
 
