@@ -118,6 +118,7 @@ function loadPokemonByType(type1, type2) {
     offset = 0;
 
     if (type1 && type2) {
+      // Se dois tipos forem selecionados, busca Pokémon que possuem ambos os tipos
       Promise.all([
         pokeApi.getPokemonsByType(type1),
         pokeApi.getPokemonsByType(type2),
@@ -134,6 +135,7 @@ function loadPokemonByType(type1, type2) {
           displayFilteredPokemon([]);
         });
     } else if (type1) {
+      // Se apenas o primeiro tipo for selecionado
       pokeApi.getPokemonsByType(type1)
         .then((pokemons = []) => {
           allPokemonList = pokemons;
@@ -144,6 +146,7 @@ function loadPokemonByType(type1, type2) {
           displayFilteredPokemon([]);
         });
     } else if (type2) {
+      // Se apenas o segundo tipo for selecionado
       pokeApi.getPokemonsByType(type2)
         .then((pokemons = []) => {
           allPokemonList = pokemons;
@@ -154,6 +157,7 @@ function loadPokemonByType(type1, type2) {
           displayFilteredPokemon([]);
         });
     } else {
+      // Se nenhum tipo for selecionado, volta a carregar os 12 primeiros Pokémon
       loadPokemonItens(offset, limit);
     }
   }
@@ -319,7 +323,7 @@ function displayFilteredPokemon(filteredList, shouldReplaceList = true) {
 }
 
 // Função para resetar os filtros
-function resetFilters(exceptFilter = null) {
+function resetFilters(exceptFilters = []) {
   const filters = {
     [SEARCH_BY_NUMBER]: document.getElementById(SEARCH_BY_NUMBER),
     [SEARCH_BY_NAME]: document.getElementById(SEARCH_BY_NAME),
@@ -329,7 +333,7 @@ function resetFilters(exceptFilter = null) {
   };
 
   for (const [key, input] of Object.entries(filters)) {
-    if (key !== exceptFilter) {
+    if (!exceptFilters.includes(key)) {
       input.value = "";
     }
   }
@@ -376,7 +380,7 @@ function setupInputListeners() {
       event.preventDefault();
       const query = searchByNumberInput.value.trim();
       if (query) {
-        resetFilters(SEARCH_BY_NUMBER);
+        resetFilters([SEARCH_BY_NUMBER]);
         searchPokemonByNumberOrName(query);
       }
     }
@@ -387,7 +391,7 @@ function setupInputListeners() {
       event.preventDefault();
       const query = searchByNameInput.value.trim();
       if (query) {
-        resetFilters(SEARCH_BY_NAME);
+        resetFilters([SEARCH_BY_NAME]);
         searchPokemonByNumberOrName(query);
       }
     }
@@ -476,7 +480,7 @@ loadMoreButton.addEventListener("click", () => {
 // Event listeners para os filtros
 document.getElementById(GENERATION_FILTER).addEventListener("change", () => {
   clearCache();
-  resetFilters(GENERATION_FILTER);
+  resetFilters([GENERATION_FILTER]);
   const generationFilter = document.getElementById(GENERATION_FILTER).value;
 
   if (isShowingFavorites) {
@@ -501,7 +505,7 @@ document.getElementById(GENERATION_FILTER).addEventListener("change", () => {
 
 document.getElementById(TYPE_FILTER_1).addEventListener("change", () => {
   clearCache();
-  resetFilters(TYPE_FILTER_1);
+  resetFilters([TYPE_FILTER_1, TYPE_FILTER_2]); // Mantém os valores dos dropdowns de tipo
   const typeFilter1 = document.getElementById(TYPE_FILTER_1).value;
   const typeFilter2 = document.getElementById(TYPE_FILTER_2).value;
 
@@ -517,7 +521,7 @@ document.getElementById(TYPE_FILTER_1).addEventListener("change", () => {
 
 document.getElementById(TYPE_FILTER_2).addEventListener("change", () => {
   clearCache();
-  resetFilters(TYPE_FILTER_2);
+  resetFilters([TYPE_FILTER_1, TYPE_FILTER_2]); // Mantém os valores dos dropdowns de tipo
   const typeFilter1 = document.getElementById(TYPE_FILTER_1).value;
   const typeFilter2 = document.getElementById(TYPE_FILTER_2).value;
 
