@@ -20,7 +20,7 @@ let allPokemonNames = []; // Lista de todos os nomes de Pokémon
 const SPECIAL_POKEMON_IDS = [
   924, 925, 529, 551, 602, 618, 437, 486, 263, 264, 276, 277, 287, 290, 329,
   333, 334, 375, 376, 380, 381, 167, 169, 170, 171, 211, 220, 232, 22, 41, 42,
-  49, 50, 53, 74, 75, 81, 89, 132,
+  49, 50, 53, 74, 75, 81, 89, 132, 980
 ];
 
 // Função para capitalizar a primeira letra de uma palavra
@@ -65,7 +65,7 @@ function loadPokemonByGeneration(generation) {
     6: { start: 650, end: 721 },
     7: { start: 722, end: 809 },
     8: { start: 810, end: 898 },
-    9: { start: 899, end: 1025 },
+    9: { start: 899, end: 10279 },
   };
 
   const range = generationRanges[generation];

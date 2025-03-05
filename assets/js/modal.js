@@ -4,35 +4,23 @@ pokemonList.addEventListener("click", (event) => {
   if (pokemonItem) {
     const pokemonIDString = pokemonItem.id.split("-")[2];
     const pokemonID = parseInt(pokemonIDString);
-
-    // Salva a posição de rolagem atual da página
     const scrollPosition = window.scrollY;
 
-    // Busca os detalhes do Pokémon específico
     pokeApi.getPokemonDetailById(pokemonID).then((pokeData) => {
-      // Busca os detalhes da espécie do Pokémon
       pokeApi.getPokemonSpecies(pokeData.species.url).then((speciesInfo) => {
-        let pokemonName = pokemonItem.querySelector(".name").textContent;
+        const pokemonName = pokemonItem.querySelector(".name").textContent;
         const pokemonNumber = pokemonIDString.padStart(3, "0");
         const modal = document.querySelector("dialog");
         modal.classList.add("poke-card");
 
-        // Lógica para definir a URL da imagem
-        let pokeImg;
-        if (pokemonID <= 649) {
-          // Usa a imagem da API
-          pokeImg = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${pokemonIDString}.svg`;
-        } else {
-          // Usa a imagem da pasta local
-          pokeImg = `/assets/img/pokemons/${pokemonID}.png`;
-        }
+        const pokeImg = pokemonID <= 649
+          ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${pokemonIDString}.svg`
+          : `/assets/img/pokemons/${pokemonID}.png`;
 
-        // Extrair os nomes das habilidades
         const abilitiesNames = pokeData.abilities
           .map((ability) => ability.ability.name)
           .join(", ");
 
-        // Monta o conteúdo do modal
         modal.innerHTML = `
           <img class="poke-img" src="${pokeImg}" alt="" style="display: none;">
           <div class="upper">
@@ -58,82 +46,61 @@ pokemonList.addEventListener("click", (event) => {
           </div>
         `;
 
-        // Adiciona a classe de cor ao modal com base no tipo do Pokémon
-        let colorClass = pokemonItem.classList[1]; // Obtém a classe de tipo diretamente do item
-        let color = colorClass;
-        modal.classList.add(color);
+        const colorClass = pokemonItem.classList[1];
+        modal.classList.add(colorClass);
 
-
-
-        // Exibe o modal
         modal.showModal();
 
-        // Fecha o modal ao clicar no botão de fechar
         modal.querySelector(".close-card").addEventListener("click", (e) => {
-          e.preventDefault(); // Evita comportamentos padrão do link
-          closeModal(modal, color, scrollPosition);
+          e.preventDefault();
+          closeModal(modal, colorClass, scrollPosition);
         });
 
-        // Fecha o modal ao clicar fora dele
         modal.addEventListener("click", (e) => {
           if (e.target === modal) {
-            closeModal(modal, color, scrollPosition);
+            closeModal(modal, colorClass, scrollPosition);
           }
         });
 
-        // Alterna o ícone de coração e atualiza a lista de favoritos
         const favoriteButton = modal.querySelector(".favorite-button");
         const favoriteIcon = favoriteButton.querySelector("img");
-
-        // Verifica se o Pokémon já está favoritado
         let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
         let isFavorite = favorites.includes(pokemonID);
 
-        // Define o ícone inicial
         favoriteIcon.src = isFavorite
           ? "/assets/img/icons/heart-fill.png"
           : "/assets/img/icons/heart.png";
 
-        // Alterna o ícone de coração e atualiza a lista de favoritos
         favoriteButton.addEventListener("click", (e) => {
           e.preventDefault();
-
-          // Atualiza o estado de favorito
           isFavorite = !isFavorite;
 
           if (isFavorite) {
-            // Adiciona o Pokémon aos favoritos apenas se ele ainda não estiver na lista
             if (!favorites.includes(pokemonID)) {
               favorites.push(pokemonID);
               localStorage.setItem("favorites", JSON.stringify(favorites));
             }
             favoriteIcon.src = "/assets/img/icons/heart-fill.png";
           } else {
-            // Remove o Pokémon dos favoritos
             favorites = favorites.filter((id) => id !== pokemonID);
             localStorage.setItem("favorites", JSON.stringify(favorites));
             favoriteIcon.src = "/assets/img/icons/heart.png";
           }
 
-          // Atualiza a lista de favoritos em tempo real
           if (isShowingFavorites) {
-            offset = 0; // Reseta o offset para 0 ao atualizar a lista
-            loadFavorites(offset, limit); // Recarrega a lista de favoritos
+            offset = 0;
+            loadFavorites(offset, limit);
           }
         });
 
-        // Redimensiona a imagem do Pokémon, se necessário
         const imgElement = modal.querySelector(".poke-img");
         imgElement.onload = () => {
-          const maxHeight = 80; // Altura máxima para redimensionar imagens pequenas
+          const maxHeight = 80;
           const naturalWidth = imgElement.naturalWidth;
           const naturalHeight = imgElement.naturalHeight;
           const aspectRatio = naturalWidth / naturalHeight;
-         
-          if (pokemonID === 813) {
-            imgElement.style.width = "90px";
-            imgElement.style.height = "150px";
-          } else if (pokemonID === 896) {
+
+          if (pokemonID === 813 || pokemonID === 896) {
             imgElement.style.width = "90px";
             imgElement.style.height = "150px";
           } else if (pokemonID === 899) {
@@ -144,7 +111,7 @@ pokemonList.addEventListener("click", (event) => {
             imgElement.style.height = "150px";
             imgElement.style.top = "90px";
             imgElement.style.left = "152px";
-          } else if (aspectRatio <= 1.05) {  // Verifica se a proporção é até 105:100 (1.05:1)
+          } else if (aspectRatio <= 1.05) {
             imgElement.style.width = "120px";
             imgElement.style.height = "139px";
           } else if (aspectRatio <= 1.3) {
@@ -165,23 +132,17 @@ pokemonList.addEventListener("click", (event) => {
             const newWidth = newHeight * aspectRatio;
             imgElement.style.width = `${newWidth}px`;
             imgElement.style.height = `${newHeight}px`;
-          } else if (pokemonID === 813) {
-            // Condição especial para o Pokémon de ID 813
-            imgElement.style.width = "90px";
-            imgElement.style.height = "150px";
           } else if (naturalHeight > 110) {
-            // Lógica padrão para Pokémon com altura maior que 110
             const newHeight = 130;
             const newWidth = newHeight * aspectRatio;
             imgElement.style.width = `${newWidth}px`;
             imgElement.style.height = `${newHeight}px`;
           }
 
-          // Exibe a imagem com transição suave
-          imgElement.style.opacity = "0"; // Inicialmente transparente
-          imgElement.style.display = "block"; // Exibe a imagem
+          imgElement.style.opacity = "0";
+          imgElement.style.display = "block";
           setTimeout(() => {
-            imgElement.style.opacity = "1"; // Torna a imagem visível com transição
+            imgElement.style.opacity = "1";
           }, 10);
         };
       });
@@ -189,12 +150,9 @@ pokemonList.addEventListener("click", (event) => {
   }
 });
 
-// Função para fechar o modal
 function closeModal(modal, color, scrollPosition) {
   modal.classList.remove(color);
   modal.classList.remove("poke-card");
   modal.close();
-
-  // Restaura a posição de rolagem da página
   window.scrollTo(0, scrollPosition);
 }
